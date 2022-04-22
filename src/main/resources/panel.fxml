@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="org.sherlock.java.filemanager.PanelController">
+    <HBox>
+        <ComboBox fx:id="diskBox"/>
+        <TextField fx:id="pathField" HBox.hgrow="ALWAYS" editable="false" />
+        <Button text="Вверх"/>
+    </HBox>
+    <TableView VBox.vgrow="ALWAYS" fx:id="filesTable"/>
+
+</VBox>
