@@ -2,9 +2,12 @@ package org.sherlock.java.filemanager;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 
 import java.io.IOException;
 import java.net.URL;
@@ -18,7 +21,7 @@ public class PanelController implements Initializable {
     TableView<FileInfo> filesTable;
 
     @FXML
-    ComboBox<String> diskBox;
+    ComboBox<String> disksBox;
 
     @FXML
     TextField pathField;
@@ -66,11 +69,24 @@ public class PanelController implements Initializable {
         filesTable.getColumns().addAll(fileTypeColumn, filenameColumn, fileSizeColumn, fileDateColumn);
         filesTable.getSortOrder().add(fileTypeColumn);
 
-        diskBox.getItems().clear();
+        disksBox.getItems().clear();
         for(Path p: FileSystems.getDefault().getRootDirectories()){
-            diskBox.getItems().add(p.toString());
+            disksBox.getItems().add(p.toString());
         }
-        diskBox.getSelectionModel().select(0);
+        disksBox.getSelectionModel().select(0);
+
+        filesTable.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if(event.getClickCount()==2){
+                    Path path = Paths.get(pathField.getText()).resolve(filesTable.getSelectionModel().getSelectedItem().getFileName());
+                    if(Files.isDirectory(path)){
+                        updateList(path);
+                    }
+                }
+            }
+        });
+
         updateList(Paths.get("."));
 
     }
@@ -85,5 +101,28 @@ public class PanelController implements Initializable {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Не удалось обновить список файлов", ButtonType.OK);
             alert.showAndWait();
         }
+    }
+
+    public void btnPathUpAction(ActionEvent actionEvent) {
+        Path upperPath = Paths.get(pathField.getText()).getParent();
+        if(upperPath != null){
+            updateList(upperPath);
+        }
+    }
+
+    public void selectDiskAction(ActionEvent actionEvent) {
+        ComboBox<String> element = (ComboBox<String>) actionEvent.getSource();
+        updateList(Paths.get(element.getSelectionModel().getSelectedItem()));
+    }
+
+    public String getSelectedFilename(){
+        if(!filesTable.isFocused()){
+            return null;
+        }
+        return filesTable.getSelectionModel().getSelectedItem().getFileName();
+    }
+
+    public String getCurrentPath(){
+        return pathField.getText();
     }
 }
